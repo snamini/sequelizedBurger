@@ -1,0 +1,114 @@
+// var express = require("express");
+//
+// var app = express.Router();
+// // Import the model (cat.js) to use its database functions.
+// var healthFewd = require("../models/healthFewd.js");
+//
+// // Create all our routes and set up logic within those routes where requestuired.
+// app.get("/", function(request, response) {
+//   response.redirect("/healthFewds");
+//
+// });
+//
+// app.get("/healthFewds", function(request, response) {
+//   healthFewd.all(function(data) {
+//     var hbsObject = {
+//       healthFewds: data
+//     };
+//     console.log(hbsObject);
+//     response.render("index", hbsObject);
+//   });
+// });
+//
+// app.post("/healthFewds/create", function(request, response) {
+//   healthFewd.create([
+//     "foodname", "devoured"
+//   ], [
+//     request.body.foodname, request.body.devoured
+//   ], function() {
+//     response.redirect("/healthFewds");
+//   });
+// });
+//
+// app.put("/healthFewds/update/:id", function(request, response) {
+//   var condition = "id = " + request.params.id;
+//
+//   // the paramater represents anything after ":"
+//
+//   console.log("condition", condition);
+//
+//   healthFewd.update({
+//     devour: request.body.devour
+//   }, condition, function() {
+//     response.redirect("/healthFewds");
+//   });
+// });
+//
+//
+//
+// // Export routes for server.js to use.
+// module.exports = app;
+
+
+
+// Requiring our models
+var db = require("../models");
+
+// Routes
+// =============================================================
+module.exports = function(app) {
+
+  // GET route for getting all of the healthfewd
+  app.get("/api/healthfewd", function(req, res) {
+    // findAll returns all entries for a table when used with no options
+    db.health.findAll({}).then(function(dbhealth) {
+      // We have access to the healthfewd as an argument inside of the callback function
+      res.json(dbhealth);
+    });
+  });
+
+  // POST route for saving a new todo
+  app.post("/api/healthfewd", function(req, res) {
+    // create takes an argument of an object describing the item we want to
+    // insert into our table. In this case we just we pass in an object with a text
+    // and complete property
+    db.health.create({
+      foodname: req.body.foodname,
+      devoured: req.body.devoured
+    }).then(function(dbhealth) {
+      // We have access to the new todo as an argument inside of the callback function
+      res.json(dbhealth);
+    });
+  });
+
+  // DELETE route for deleting healthfewd. We can get the id of the todo to be deleted from
+  // req.params.id
+  app.delete("/api/healthfewd/:id", function(req, res) {
+    // We just have to specify which todo we want to destroy with "where"
+    db.health.destroy({
+      where: {
+        id: req.params.id
+      }
+    }).then(function(dbhealth) {
+      res.json(dbhealth);
+    });
+
+  });
+
+  // PUT route for updating healthfewd. We can get the updated todo data from req.body
+  app.put("/api/healthfewd", function(req, res) {
+    // Update takes in an object describing the properties we want to update, and
+    // we use where to describe which objects we want to update
+    db.health.update({
+      foodname: req.body.foodname,
+      devoured: req.body.devoured
+    }, {
+      where: {
+        id: req.body.id
+      }
+    }).then(function(dbhealth) {
+      res.json(dbhealth);
+    });
+  });
+
+};
